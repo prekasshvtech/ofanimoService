@@ -21,6 +21,7 @@ https.createServer({
     key: privateKey,
     cert: certificate
 }, app).listen(HTTP_PORT);
+console.log("Server is listening on port " + HTTP_PORT)
 
 // app.listen(HTTP_PORT, () => {
 //     console.log("Server is listening on port " + HTTP_PORT);
@@ -178,6 +179,15 @@ app.post("/usermaster", (req, res, next) => {
         });
   });
 
+  app.get("/getRated", (req, res, next) => {
+    db.all("select B.UserID,Username,ProductVariant,Rating from rating A JOIN user_master B ON B.userid = A.UserId;", [], (err,rows) => {
+        if(err) {
+            res.status(400).json({"error":err.message});
+          return;
+        }
+        res.status(200).json(rows);
+    })
+  });
   app.get("/ratings", (req, res, next) => {
     let query = "SELECT * FROM rating";
     if(req.query.user != "" && req.query.user != undefined && req.query.product != "" && req.query.product != undefined){
