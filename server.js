@@ -192,18 +192,20 @@ app.post("/usermaster", (req, res, next) => {
     let query = "SELECT * FROM rating";
     if(req.query.user != "" && req.query.user != undefined && req.query.product != "" && req.query.product != undefined){
         
-        query = "SELECT * FROM rating WHERE UserID="+parseInt(req.query.user) +" AND ProductID="+parseInt(req.query.product) ;
+        query = "SELECT * FROM rating WHERE UserID="+parseInt(req.query.user) +" AND ProductID="+1;
         console.log(query)
     }
     else if(req.query.user != "" && req.query.user != undefined){
         query = "SELECT * FROM rating WHERE UserID="+req.query.user;
         console.log(query)
     }
+    console.log(query);
     db.all(query, [], (err, rows) => {
         if (err) {
           res.status(400).json({"error":err.message});
           return;
         }
+        console.log(rows);
         res.status(200).json(rows);
       });
   })
@@ -211,9 +213,11 @@ app.post("/usermaster", (req, res, next) => {
   app.post("/ratings", (req, res, next) => {
     var reqBody = req.body;
     console.log(reqBody)
+    console.log(reqBody.length)
     for(var i=0; i < reqBody.length; i++){
+        console.log(i)
         db.run(`INSERT INTO rating (UserID, ProductID, ProductVariant, Rating) VALUES (?,?,?,?)`,
-        [reqBody[i].UserID, reqBody[i].ProductID, reqBody[i].ProductVariant, reqBody[i].Rating]
+        [reqBody[i].UserID, 1, reqBody[i].ProductVariant, reqBody[i].Rating]
         ), (err, result) => {
             if (err) {
                 res.status(400).json({ "error": err.message })
@@ -221,10 +225,13 @@ app.post("/usermaster", (req, res, next) => {
             }
         };
     }
-            employee_id =  this.lastID;
-            res.status(201).json({
-                "employee_id": this.lastID
-            })
+    res.status(200).json({
+        "employee_id": this.lastID
+    });
+    // employee_id =  this.lastID;
+    // res.status(200).json({
+    //     "employee_id": this.lastID
+    // })
   });
 
 
@@ -303,27 +310,29 @@ app.post("/product", (req, res, next) => {
   });
 
 
-  app.post("/rating", (req, res, next) => {
-    // console.log(req.params)
-    var reqBody = req.body;
-    // console.log(req.body)
-    db.run(`INSERT INTO rating (UserID, ProductID, ProductVariant, Rating) VALUES (?,?,?,?)`,
-        [reqBody.UserID, reqBody.ProductID, reqBody.ProductVariant, reqBody.Rating],
-        function (err, result) {
-            if (err) {
-                res.status(400).json({ "error": err.message })
-                return;
-            }
-            res.status(201).json({
-                "employee_id": this.lastID
-            })
-        });
-  });
+//   app.post("/rating", (req, res, next) => {
+//     // console.log(req.params)
+//     var reqBody = req.body;
+//     // console.log(req.body)
+//     db.run(`INSERT INTO rating (UserID, ProductID, ProductVariant, Rating) VALUES (?,?,?,?)`,
+//         [reqBody.UserID, reqBody.ProductID, reqBody.ProductVariant, reqBody.Rating],
+//         function (err, result) {
+//             if (err) {
+//                 res.status(400).json({ "error": err.message })
+//                 return;
+//             }
+//             res.status(201).json({
+//                 "employee_id": this.lastID
+//             })
+//         });
+//   });
 
   app.put("/ratings", (req, res, next) => {
       var reqBody = req.body;
       var query = req.body;
-      for(var i=0; i < reqBody.length; i++){
+      var rowData;
+      for(var i=0; i < 3; i++){
+          console.log('UPDATE rating SET Rating ='+reqBody[i].Rating+' WHERE UserID='+reqBody[i].UserID +' AND ProductVariant="'+req.body[i].ProductVariant+'"')
         db.all('UPDATE rating SET Rating ='+reqBody[i].Rating+' WHERE UserID='+reqBody[i].UserID +' AND ProductVariant="'+req.body[i].ProductVariant+'"',
         (err, rows) => {
             if (err) {
@@ -331,9 +340,13 @@ app.post("/product", (req, res, next) => {
               return;
             }
             // res.status(200).json(rows);
+            rowData = rows;
           })
+        //   setTimeout(() => {
+            console.log("Test Log")
+            res.status(200).json(rowData);
+        //   },1000) 
       }
-      
   })
 
   app.put("/usermaster", (req, res, next) => {
